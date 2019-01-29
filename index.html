@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Harry Potter Gifs</title>
+</head>
+
+<body>
+  <div id="buttons">
+    <button data-person="harry potter">
+      I'm a wot
+    </button>
+    <button data-person="ron weasley">
+      Make this stupid fat rat yellow
+    </button>
+    <button data-person="hermione granger">
+        leviO-sa not lev-i-o-saaaa
+      </button>
+      <button data-person="snape">
+        1,000 points from gryffindor
+      </button>
+      <button data-person="dumbledore">
+        and with a mysterious twinkle in his eye...
+      </button>
+      <button data-person="hedwig">
+        ka ka
+      </button>
+      <button data-person="professor mcgonagall">
+        1,000 points from gryffindor
+      </button>
+      <button data-person="weasley twins">
+        1,000 points from gryffindor
+      </button>
+      <button data-person="sirius">
+        1,000 points from gryffindor
+      </button> 
+      <button data-person="voldemort">
+        1,000 points from gryffindor
+      </button>
+      <button data-person="draco malfoy">
+        1,000 points from gryffindor
+      </button>
+      <button data-person="Sirius">
+        1,000 points from gryffindor
+      </button>
+    </div>
+
+    <div id="gifs-appear-here">
+    </div>
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      $("button").on("click", function() {
+        var person = $(this).attr("data-person");
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+          person + "&api_key=dc6zaTOxFJmzC&limit=10";
+  
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        })
+          .then(function(response) {
+            var results = response.data;
+  
+            for (var i = 0; i < results.length; i++) {
+              var gifDiv = $("<div>");
+  
+              var rating = results[i].rating;
+  
+              var p = $("<p>").text("Rating: " + rating);
+  
+              var personImage = $("<img>");
+              personImage.attr("src", results[i].images.fixed_height.url);
+  
+              gifDiv.prepend(p);
+              gifDiv.prepend(personImage);
+  
+              $("#gifs-appear-here").prepend(gifDiv);
+            }
+          });
+      });
+    </script>
+  </body>
+  
+  </html>
