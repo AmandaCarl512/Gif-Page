@@ -1,86 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 <head>
-  <meta charset="utf-8">
-  <title>Harry Potter Gifs</title>
+    <meta charset="utf-8">
+    <title>Harry Potter Gifs</title>
 </head>
 
 <body>
-  <div id="buttons">
-    <button data-person="harry potter">
-      I'm a wot
-    </button>
-    <button data-person="ron weasley">
-      Make this stupid fat rat yellow
-    </button>
-    <button data-person="hermione granger">
-        leviO-sa not lev-i-o-saaaa
-      </button>
-      <button data-person="snape">
-        1,000 points from gryffindor
-      </button>
-      <button data-person="dumbledore">
-        and with a mysterious twinkle in his eye...
-      </button>
-      <button data-person="hedwig">
-        ka ka
-      </button>
-      <button data-person="professor mcgonagall">
-        1,000 points from gryffindor
-      </button>
-      <button data-person="weasley twins">
-        1,000 points from gryffindor
-      </button>
-      <button data-person="sirius">
-        1,000 points from gryffindor
-      </button> 
-      <button data-person="voldemort">
-        1,000 points from gryffindor
-      </button>
-      <button data-person="draco malfoy">
-        1,000 points from gryffindor
-      </button>
-      <button data-person="Sirius">
-        1,000 points from gryffindor
-      </button>
+    <div id="buttonContainer">
     </div>
 
-    <div id="gifs-appear-here">
+    <div id="gifContainer">
     </div>
-  
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript">
-      $("button").on("click", function() {
-        var person = $(this).attr("data-person");
-        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
-          person + "&api_key=dc6zaTOxFJmzC&limit=10";
-  
-        $.ajax({
-          url: queryURL,
-          method: "GET"
-        })
-          .then(function(response) {
-            var results = response.data;
-  
-            for (var i = 0; i < results.length; i++) {
-              var gifDiv = $("<div>");
-  
-              var rating = results[i].rating;
-  
-              var p = $("<p>").text("Rating: " + rating);
-  
-              var personImage = $("<img>");
-              personImage.attr("src", results[i].images.fixed_height.url);
-  
-              gifDiv.prepend(p);
-              gifDiv.prepend(personImage);
-  
-              $("#gifs-appear-here").prepend(gifDiv);
-            }
-          });
+
+    <form>
+      <div class="form-group">
+        <label for="exampleFormControlInput1">Add a character</label>
+        <input type="string" class="form-control" id="exampleFormControlInput1" placeholder="Harry Potter">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div></form>
+
+<!-- Add a form to your page takes the value from a user input box and adds it into your topics array. 
+Then make a function call that takes each topic in the array remakes the buttons on the page. -->
+<script type="text/javascript" src="giphy.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.0.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  var apiKey = "1VOp4klkFaz79KY8LganRV5HS4FLBsNd";
+  var characters = ["Dobby", "Sirius",
+      "Hermione", "Snape", "Hagrid",
+      "Weasleys", "Dumbledore", "Voldemort",
+      "Remus Lupin", "Draco Malfoy", "Mcgonagall",
+      "Bellatrix", "Buckbeak", "Dursleys"
+  ];
+  // this for loop generates a button for each item in the "characters" array
+  for (var i = 0; i < characters.length; i++) {
+      var buttonToGenerate = $("<button class='gif-button btn btn-info'>").html(characters[i]);
+      $("#buttonContainer").append(buttonToGenerate);
+  }
+  // next section displays the gifs that were received
+  function generateGifsOnReturn(results) {
+      for (var i = 0; i < results.data.length; i++) {
+          var rating = results.data[i].rating;
+          var imgSrc = results.data[i].images.fixed_height.url;
+          var imgSrcStill = results.data[i].images.fixed_height_still.url;
+          var oneDivToRuleThemAll = $("<div>");
+          var gifRating = $("<span class='rating'>").html("Rating: " + rating);
+          var imgGif = $("<img class='img-class' src=" + imgSrcStill + " data-still=" + imgSrcStill + " data-animate=" + imgSrc + " data-state='still' >");
+          oneDivToRuleThemAll.append(gifRating).append(imgGif);
+          $("#gifContainer").append(oneDivToRuleThemAll);
+      }
+
+      //this section is an if/else statement so that the gifs are still upon button click, but when clicked on, they animate.
+      $(".img-class").on("click", function() {
+          if ($(this).attr("data-state") === "still") {
+              $(this).attr("data-state", "animate");
+              $(this).attr("src", $(this).attr("data-animate"));
+          } else {
+              $(this).attr("data-state", "still");
+              $(this).attr("src", $(this).attr("data-still"));
+          }
       });
-    </script>
-  </body>
-  
-  </html>
+  }
+    //this section makes sure the old gifs are deleted when a new button is clicked
+  $(".gif-button").on("click", function() {
+      // Clear out the gif container before adding more
+      $("#gifContainer").html("");
+
+      // Encode the search term
+      var searchTerm = encodeURIComponent($(this).html());
+
+      // Call the giphy API
+      $.ajax({
+          url: "https://api.giphy.com/v1/gifs/search",
+          data: {
+              api_key: apiKey,
+              q: searchTerm,
+              limit: 10,
+              lang: "en",
+          },
+          success: generateGifsOnReturn
+      }).fail(function() {
+          alert("API call failed");
+      });
+  });
+});
+</script>
+    <style>
+        .gif-button {
+          margin: 3px;
+          margin-top: 5px;
+        }
+        .form-group {
+          width: 300px;
+          float: right;
+          margin: 30px;
+        }
+        .btn-primary {
+          color: white;
+          background-color: rgb(37, 110, 136);
+          margin: 10px;
+        }
+        body {
+          background-image: url('pics/hedwig.jpg');
+        }
+    </style>
+    
+</body>
+
+</html>
